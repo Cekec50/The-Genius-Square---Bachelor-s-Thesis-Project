@@ -1,5 +1,6 @@
 import pygame
 from ConstValues import *
+from Classes import *
 import threading
 import random
 from test import *
@@ -26,6 +27,15 @@ table_coordinates = {}
 
 dice_values = [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]
 
+pieces = []
+
+selected_piece = None
+
+dragging = False
+offset_x = 0
+offset_y = 0
+dragged_piece = None
+
 
 
 def init_game():
@@ -36,6 +46,21 @@ def init_game():
     for i in range(0, 6):
         for j in range(0, 6):
             table_coordinates[(i, j)] = (SQUARE_WIDTH*(j+1), SQUARE_HEIGHT*(i+1) + INFO_BAR_y + 2)
+
+    # for i in range (1, 10):
+    #     pieces.append(Piece(i))
+
+    pieces.append(Piece(1))
+    pieces.append(Piece(2))
+    pieces.append(Piece(3))
+    pieces.append(Piece(4))
+    pieces.append(Piece(5))
+    pieces.append(Piece(6))
+    pieces.append(Piece(7))
+    pieces.append(Piece(8))
+    pieces.append(Piece(9))
+
+    
 
     # background = pygame.image.load("images/wood_background.jpeg")
 
@@ -137,13 +162,9 @@ def draw_game_screen():
             label = pygame.Rect(0, SQUARE_HEIGHT*i + INFO_BAR_y + 2, SQUARE_WIDTH, SQUARE_HEIGHT)
             draw_label(label, COLOR_WHITE, COLOR_BLACK, chr(64+i))
 
-        # Draw pieces - STATIC - CHANGE THIS    
-        for i in range (0,5):
-            for j in range (0, 6):
-                if(i == 4 and j == 0): continue
-                rect = pygame.Rect(SQUARE_WIDTH*i + (PIECE_WINDOW_x + SQUARE_WIDTH/2), SQUARE_HEIGHT*j + (PIECE_WINDOW_y + + SQUARE_WIDTH/2), SQUARE_WIDTH, SQUARE_HEIGHT)
-                pygame.draw.rect(screen,COLOR_YELLOW, rect)
-                pygame.draw.rect(screen,COLOR_BLACK, rect, 2)
+        # Draw pieces    
+        for piece in pieces:
+            piece.draw(screen)
 
         for i in range(0, 6):
             for j in range(0, 6):
@@ -161,6 +182,15 @@ def draw_game_screen():
     draw_table()
 
 def buttons_function():
+    def unselect_all_pieces():
+        for piece in pieces:
+            piece.unselect_piece()
+
+    global dragging
+    global dragged_piece
+    global offset_x
+    global offset_y
+    global selected_piece
     mouse = pygame.mouse.get_pos() 
     BUTTON_WIDTH = WINDOW_WIDTH/3
     BUTTON_HEIGHT = WINDOW_HEIGHT/2 - BOTTOM_BAR_y/2
@@ -182,14 +212,26 @@ def buttons_function():
         if ev.type == pygame.QUIT: 
             pygame.quit()
             return 0
-        #checks if a mouse is clicked 
+         # Mouse button down event
         if ev.type == pygame.MOUSEBUTTONDOWN: 
             if quit_button.collidepoint(mouse): 
                 return 0 
             if roll_button.collidepoint(mouse):
                 return 1
             if rotate_button.collidepoint(mouse):
+                if(selected_piece != None):
+                    selected_piece.rotate()
                 return 2
+            
+            for piece in pieces: 
+                if piece.hovered_over(ev.pos):
+                    unselect_all_pieces()
+                    selected_piece = piece
+                    piece.select_piece()
+                    break
+            
+        
+        
 
     draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE, "QUIT")
     draw_interactive_button(roll_button, mouse, COLOR_LIGHT_GREY, COLOR_DARK_GREY,  COLOR_WHITE, "ROLL")
@@ -241,14 +283,11 @@ def game_start(game_type):
             if (button_pressed == 1): 
                 roll_dices() # rolled dices
                 start_ticks = pygame.time.get_ticks()
-            elif (button_pressed == 2):
-                pygame.display.update()
-                break
             pygame.display.update()
 
 
         # player done playing , Ai turn
-        thread = threading.Thread(target = solve, args=(table, pieces))
+        thread = threading.Thread(target = solve, args=(table, PIECES))
         thread.start()
         print("STARTED SOLVING")
 
