@@ -225,12 +225,26 @@ def buttons_function():
             
             for piece in pieces: 
                 if piece.hovered_over(ev.pos):
+                    # select piece
                     unselect_all_pieces()
                     selected_piece = piece
                     piece.select_piece()
+                    
+                    # drag piece
+                    dragged_piece = piece
+                    dragging = True
+                    offset_x = (piece.hovered_over_rect_coord(ev.pos))[0] - ev.pos[0]
+                    offset_y = (piece.hovered_over_rect_coord(ev.pos))[1] - ev.pos[1]
                     break
             
-        
+        # Mouse button up event
+        elif ev.type == pygame.MOUSEBUTTONUP:
+            dragging = False
+            dragged_piece = None
+
+        # Mouse motion event
+        elif ev.type == pygame.MOUSEMOTION and dragging:
+            dragged_piece.move(ev.pos, ev.pos[0] + offset_x, ev.pos[1] + offset_y)
         
 
     draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE, "QUIT")
@@ -248,9 +262,6 @@ def reset_table():
     for i in range (0, 6):
         for j in range (0, 6):
             table[i][j] = 0
-##########################################################################
-
-################################################################
 
 def game_start(game_type):
 
