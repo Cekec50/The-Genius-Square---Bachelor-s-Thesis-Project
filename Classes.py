@@ -21,7 +21,7 @@ class Piece():
         self.__selected_piece = False
         self.__type = type
         self.__orientation_index = 0
-        self.__orientation = (PIECES[-type])[self.__orientation_index]
+        self.__orientation = (PIECES[type - 1])[self.__orientation_index]
         self.__rect_list = []
         self.__selected_rect = None
         self.__selected_rect_index = 0
@@ -30,10 +30,12 @@ class Piece():
             y_coord =  PIECE_WINDOW_y+ 2 +  tuple[0]*SQUARE_HEIGHT + (PIECE_START_OFFSET[self.__type])[0]*SQUARE_HEIGHT
             self.__rect_list.append(pygame.Rect(x_coord, y_coord, SQUARE_WIDTH, SQUARE_HEIGHT))
         
-
+    def get_type(self):
+        return self.__type
+    
     def rotate(self):
-        self.__orientation_index = (self.__orientation_index + 1) % len(PIECES[-self.__type])
-        self.__orientation = (PIECES[-self.__type])[self.__orientation_index]
+        self.__orientation_index = (self.__orientation_index + 1) % len(PIECES[self.__type - 1])
+        self.__orientation = (PIECES[self.__type - 1])[self.__orientation_index]
         self.__rect_list.clear()
         for tuple in self.__orientation:
             x_coord = PIECE_WINDOW_x + 2 + tuple[1]*SQUARE_WIDTH + (PIECE_START_OFFSET[self.__type])[1]*SQUARE_WIDTH 

@@ -32,6 +32,7 @@ def find_next_empty_position(board):
 
 def solve(board, pieces, piece_index=0):
     if piece_index >= len(pieces):
+        print(board)
         print("SOLVED!")
         return True  # All pieces have been placed
 

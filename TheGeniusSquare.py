@@ -176,7 +176,7 @@ def draw_game_screen():
                 elif(table[i][j] > 0):
                     x_coord = (table_coordinates[(i, j)])[0]
                     y_coord = (table_coordinates[(i, j)])[1]
-                    pygame.draw.rect(screen, PIECE_COLORS[table[i][j]], [x_coord, y_coord, SQUARE_HEIGHT, SQUARE_WIDTH])
+                    pygame.draw.rect(screen, PIECE_COLORS[-table[i][j]], [x_coord, y_coord, SQUARE_HEIGHT, SQUARE_WIDTH])
                     pygame.draw.rect(screen, COLOR_BLACK, [x_coord, y_coord, SQUARE_HEIGHT, SQUARE_WIDTH], width = 2)
 
     draw_table()
@@ -237,8 +237,26 @@ def buttons_function():
                     offset_y = (piece.hovered_over_rect_coord(ev.pos))[1] - ev.pos[1]
                     break
             
+            
         # Mouse button up event
         elif ev.type == pygame.MOUSEBUTTONUP:
+            def piece_fits():
+                pass
+            def dropping_over_field(pos):
+                for i in range(0, 6):
+                    for j in range(0, 6):
+                        if(table_coordinates[(i, j)][0] < pos[0] < table_coordinates[(i, j)][0] + SQUARE_WIDTH and
+                           table_coordinates[(i, j)][1] < pos[1] < table_coordinates[(i, j)][1] + SQUARE_HEIGHT):
+                            if(table[i][j] == 0):
+                                return (i, j)
+                return None
+
+            if(dragging):
+               field_coordinate = dropping_over_field(ev.pos);
+               if(field_coordinate != None):
+                   table[field_coordinate[0]][field_coordinate[1]] = dragged_piece.get_type()
+                
+
             dragging = False
             dragged_piece = None
 
@@ -294,6 +312,10 @@ def game_start(game_type):
             if (button_pressed == 1): 
                 roll_dices() # rolled dices
                 start_ticks = pygame.time.get_ticks()
+                
+            elif (button_pressed == 0): 
+                break
+                pygame.display.update()
             pygame.display.update()
 
 

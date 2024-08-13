@@ -202,29 +202,29 @@ PIECE_9 = [
         (1, 0), (1, 1)
     ]
 ]
-PIECE_COLORS = [        
-    COLOR_BLACK, 
-    COLOR_GREEN,        
-    COLOR_CYAN,        
-    COLOR_YELLOW,      
-    COLOR_RED,         
-    COLOR_DARK_GREY,   
-    COLOR_PURPLE,      
-    COLOR_ORANGE,      
+PIECE_COLORS = [
+    COLOR_BLACK,       
+    COLOR_BLUE,        
     COLOR_BROWN,       
-    COLOR_BLUE      
-]
+    COLOR_ORANGE,      
+    COLOR_PURPLE,     
+    COLOR_DARK_GREY,   
+    COLOR_RED,         
+    COLOR_YELLOW,      
+    COLOR_CYAN,        
+    COLOR_GREEN
+]       
 
 PIECES = [
-    PIECE_9,
-    PIECE_8,
-    PIECE_7,
-    PIECE_6,
-    PIECE_5,
-    PIECE_4,
-    PIECE_3,
+    PIECE_1,
     PIECE_2,
-    PIECE_1
+    PIECE_3,
+    PIECE_4,
+    PIECE_5,
+    PIECE_6,
+    PIECE_7,
+    PIECE_8,
+    PIECE_9
 ]
 
 PIECE_START_OFFSET = {
