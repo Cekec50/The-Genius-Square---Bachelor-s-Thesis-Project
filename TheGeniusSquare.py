@@ -181,7 +181,48 @@ def draw_game_screen():
 
     draw_table()
 
-def buttons_function():
+def mouse_function():
+    def piece_fits(field_coordinate, piece):
+        orientation = piece.get_orientation()
+        start_coord = orientation[piece.get_selected_rect_index()]
+        for coords in orientation:
+            relative_coordinate = (coords[0] - start_coord[0], coords[1] - start_coord[1])
+            if(table[field_coordinate[0] + relative_coordinate[0]][field_coordinate[1] + relative_coordinate[1]] != 0):
+                return False
+        return True
+    def put_piece(field_coordinate, piece):
+        orientation = piece.get_orientation()
+        start_coord = orientation[piece.get_selected_rect_index()]
+        for coords in orientation:
+            relative_coordinate = (coords[0] - start_coord[0], coords[1] - start_coord[1])
+            table[field_coordinate[0] + relative_coordinate[0]][field_coordinate[1] + relative_coordinate[1]] = piece.get_type()
+        for temp in pieces:
+            if (temp == piece):
+                pieces.remove(temp)
+            
+    def dropping_over_field(pos):
+        for i in range(0, 6):
+            for j in range(0, 6):
+                if(table_coordinates[(i, j)][0] < pos[0] < table_coordinates[(i, j)][0] + SQUARE_WIDTH and
+                    table_coordinates[(i, j)][1] < pos[1] < table_coordinates[(i, j)][1] + SQUARE_HEIGHT):
+                    
+                        return (i, j)
+        return None
+    def clicking_on_field(pos):
+        for i in range(0, 6):
+            for j in range(0, 6):
+                if(table_coordinates[(i, j)][0] < pos[0] < table_coordinates[(i, j)][0] + SQUARE_WIDTH and
+                    table_coordinates[(i, j)][1] < pos[1] < table_coordinates[(i, j)][1] + SQUARE_HEIGHT):
+                        if(table[i][j] > 0):
+                            return (i, j)
+        return None
+    def remove_piece(type):
+        for i in range(0, 6):
+            for j in range(0, 6):
+                if(table[i][j] == type):
+                    table[i][j] = 0
+        pieces.append(Piece(type))
+
     def unselect_all_pieces():
         for piece in pieces:
             piece.unselect_piece()
@@ -222,7 +263,10 @@ def buttons_function():
                 if(selected_piece != None):
                     selected_piece.rotate()
                 return 2
-            
+            field_coordinate = clicking_on_field(ev.pos)
+            if(field_coordinate != None):
+                type = table[field_coordinate[0]][field_coordinate[1]]
+                remove_piece(type)
             for piece in pieces: 
                 if piece.hovered_over(ev.pos):
                     # select piece
@@ -240,23 +284,13 @@ def buttons_function():
             
         # Mouse button up event
         elif ev.type == pygame.MOUSEBUTTONUP:
-            def piece_fits():
-                pass
-            def dropping_over_field(pos):
-                for i in range(0, 6):
-                    for j in range(0, 6):
-                        if(table_coordinates[(i, j)][0] < pos[0] < table_coordinates[(i, j)][0] + SQUARE_WIDTH and
-                           table_coordinates[(i, j)][1] < pos[1] < table_coordinates[(i, j)][1] + SQUARE_HEIGHT):
-                            if(table[i][j] == 0):
-                                return (i, j)
-                return None
-
             if(dragging):
-               field_coordinate = dropping_over_field(ev.pos);
+               field_coordinate = dropping_over_field(ev.pos)
                if(field_coordinate != None):
-                   table[field_coordinate[0]][field_coordinate[1]] = dragged_piece.get_type()
+                   if(piece_fits(field_coordinate, dragged_piece)):
+                        put_piece(field_coordinate, dragged_piece)
+                        table[field_coordinate[0]][field_coordinate[1]] = dragged_piece.get_type()
                 
-
             dragging = False
             dragged_piece = None
 
@@ -275,6 +309,9 @@ def roll_dices():
     for i in range (0, 7):
         dice_values[i] = POSSIBLE_DICE_VALUES[i][random.randrange(0,6)]
         table[dice_values[i][0]][dice_values[i][1]] = -1
+    pieces.clear()
+    for i in range (1, 10):
+        pieces.append(Piece(i))
 
 def reset_table():
     for i in range (0, 6):
@@ -293,13 +330,11 @@ def game_start(game_type):
 
 
             draw_game_screen()
-            buttons_function()
+            mouse_function()
             pygame.display.update()
 
-    else: # PLAYER vs A
-        
+    else: # PLAYER vs Ai
 
-        
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0 
 
@@ -308,7 +343,7 @@ def game_start(game_type):
         while True:
             draw_game_screen()
             seconds_passed = display_seconds_passed(start_ticks)
-            button_pressed = buttons_function()
+            button_pressed = mouse_function()
             if (button_pressed == 1): 
                 roll_dices() # rolled dices
                 start_ticks = pygame.time.get_ticks()
@@ -327,7 +362,7 @@ def game_start(game_type):
         while True:
             draw_game_screen()
             seconds_passed = display_seconds_passed(start_ticks)
-            button_pressed = buttons_function()
+            button_pressed = mouse_function()
             pygame.display.update()
 
 

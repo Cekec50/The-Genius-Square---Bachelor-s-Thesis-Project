@@ -17,7 +17,7 @@ def place_piece(board, piece, position, piece_number):
         board[row][col] = piece_number
     
 
-def remove_piece(board, piece, position):
+def remove_piece_solve(board, piece, position):
     for cell in piece:
         row = position[0] + cell[0]
         col = position[1] + cell[1]
@@ -44,7 +44,7 @@ def solve(board, pieces, piece_index=0):
                     time.sleep(0.02)
                     if solve(board, pieces, piece_index + 1):
                         return True
-                    remove_piece(board, orientation, (row, col))
+                    remove_piece_solve(board, orientation, (row, col))
                     time.sleep(0.02)
 
     return False

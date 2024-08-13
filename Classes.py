@@ -32,6 +32,10 @@ class Piece():
         
     def get_type(self):
         return self.__type
+    def get_orientation(self):
+        return self.__orientation
+    def get_selected_rect_index(self):
+        return self.__selected_rect_index
     
     def rotate(self):
         self.__orientation_index = (self.__orientation_index + 1) % len(PIECES[self.__type - 1])
