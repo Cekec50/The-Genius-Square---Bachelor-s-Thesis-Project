@@ -2,6 +2,7 @@ import pygame
 from ConstValues import *
 import threading
 import random
+from test import *
 
 
 pygame.init()
@@ -99,14 +100,14 @@ def draw_interactive_button(button: pygame.Rect, mouse, color_passive, color_act
     text_rect = text_surface.get_rect(center=button.center)
     screen.blit(text_surface, text_rect)
 
-def draw_labels(label: pygame.Rect, color, text_color , text):
+def draw_label(label: pygame.Rect, color, text_color , text):
     pygame.draw.rect(screen, color, label) 
     pygame.draw.rect(screen,text_color, label, width = 2)
     text_surface = menu_font.render(text, True, text_color)
     text_rect = text_surface.get_rect(center=label.center)
     screen.blit(text_surface, text_rect)
-                
 
+                
 
 def draw_game_screen():
 
@@ -125,16 +126,16 @@ def draw_game_screen():
         # Draw dices
         for i in range(0,7):
             label = pygame.Rect(PLAY_WINDOW_WIDTH*i/7,INFO_BAR_y + PLAY_WINDOW_HEIGHT + 2,SQUARE_WIDTH,SQUARE_HEIGHT)
-            draw_labels(label, COLOR_BLACK, COLOR_WHITE, DICE_LABEL[dice_values[i]])
+            draw_label(label, COLOR_BLACK, COLOR_WHITE, DICE_LABEL[dice_values[i]])
             
 
         # Draw table coordinates
         for i in range(1,7):
             label = pygame.Rect(SQUARE_WIDTH*i, INFO_BAR_y + 2, SQUARE_WIDTH, SQUARE_HEIGHT)
-            draw_labels(label, COLOR_WHITE, COLOR_BLACK, str(i))
+            draw_label(label, COLOR_WHITE, COLOR_BLACK, str(i))
             
             label = pygame.Rect(0, SQUARE_HEIGHT*i + INFO_BAR_y + 2, SQUARE_WIDTH, SQUARE_HEIGHT)
-            draw_labels(label, COLOR_WHITE, COLOR_BLACK, chr(64+i))
+            draw_label(label, COLOR_WHITE, COLOR_BLACK, chr(64+i))
 
         # Draw pieces - STATIC - CHANGE THIS    
         for i in range (0,5):
@@ -151,6 +152,11 @@ def draw_game_screen():
                     x_coord = (table_coordinates[(i, j)])[0] + radius
                     y_coord = (table_coordinates[(i, j)])[1] + radius
                     pygame.draw.circle(screen, COLOR_BLACK, (x_coord, y_coord) ,radius)
+                elif(table[i][j] > 0):
+                    x_coord = (table_coordinates[(i, j)])[0]
+                    y_coord = (table_coordinates[(i, j)])[1]
+                    pygame.draw.rect(screen, PIECE_COLORS[table[i][j]], [x_coord, y_coord, SQUARE_HEIGHT, SQUARE_WIDTH])
+                    pygame.draw.rect(screen, COLOR_BLACK, [x_coord, y_coord, SQUARE_HEIGHT, SQUARE_WIDTH], width = 2)
 
     draw_table()
 
@@ -200,7 +206,10 @@ def reset_table():
     for i in range (0, 6):
         for j in range (0, 6):
             table[i][j] = 0
-            
+##########################################################################
+
+################################################################
+
 def game_start(game_type):
 
     if(game_type == 0): return
@@ -222,22 +231,41 @@ def game_start(game_type):
         
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0 
+
+        # thread = threading.Thread(target = draw_game_screen)
+        # thread.start()  
         while True:
-            thread = threading.Thread(target = draw_game_screen)
-            thread.start()  
-            # draw_game_screen()
+            draw_game_screen()
             seconds_passed = display_seconds_passed(start_ticks)
-            if (buttons_function() == 1): 
+            button_pressed = buttons_function()
+            if (button_pressed == 1): 
                 roll_dices() # rolled dices
                 start_ticks = pygame.time.get_ticks()
-                print(table)
+            elif (button_pressed == 2):
+                pygame.display.update()
+                break
             pygame.display.update()
 
 
         # player done playing , Ai turn
-        while True:
+        thread = threading.Thread(target = solve, args=(table, pieces))
+        thread.start()
+        print("STARTED SOLVING")
 
-            break
+        while True:
+            draw_game_screen()
+            seconds_passed = display_seconds_passed(start_ticks)
+            button_pressed = buttons_function()
+            pygame.display.update()
+
+
+        # if solve(table, pieces):
+        #     print("Solution found:")
+        #     for row in table:
+        #         print(row)
+        # else:
+        #     print("No solution exists.")
+       
             
     
 

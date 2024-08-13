@@ -11,8 +11,8 @@ BOTTOM_BAR_y = INFO_BAR_y + PLAY_WINDOW_HEIGHT
 PIECE_WINDOW_x = WINDOW_WIDTH - PLAY_WINDOW_WIDTH
 PIECE_WINDOW_y = INFO_BAR_y
 
-SQUARE_WIDTH = PLAY_WINDOW_WIDTH/7
-SQUARE_HEIGHT = PLAY_WINDOW_HEIGHT/7
+SQUARE_WIDTH = PLAY_WINDOW_WIDTH//7
+SQUARE_HEIGHT = PLAY_WINDOW_HEIGHT//7
 
 COLOR_WHITE = (255,255,255) 
 
@@ -26,6 +26,13 @@ COLOR_RED = (210, 43, 43)
 COLOR_DARK_RED = (136, 8, 8)
 
 COLOR_YELLOW = (255, 255, 0)
+
+COLOR_BLUE = (0, 0, 255)        
+COLOR_BROWN = (150, 75, 0)         
+COLOR_ORANGE = (255, 165, 0)        
+COLOR_PURPLE = (160, 32, 240)       
+COLOR_CYAN = (0, 255, 255)          
+COLOR_GREEN = (0, 255, 0)   
 
 COLOR_BACKGROUND = (60,25,60)
 
@@ -57,3 +64,161 @@ TABLE_INIT_STATE = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0]
         ]
+
+ 
+PIECE_1 = [
+    [(0, 0)]
+]
+PIECE_2 = [
+    [(0, 0), (0, 1)],
+    
+    [(0, 0), (1, 0)]
+]
+PIECE_3 = [
+    [
+    (0, 0), (0, 1), (0, 2)
+    ],
+    [
+    (0, 0), 
+    (1, 0), 
+    (2, 0)
+    ]
+]
+PIECE_4 = [
+    [
+    (0, 0), 
+    (1, 0), (1, 1)
+    ],
+    [
+            (0, 1), 
+    (1, 0), (1, 1)
+    ],
+    [
+    (0, 0), (0, 1), 
+            (1, 1)
+    ],
+    [
+    (0, 0), (0, 1), 
+    (1, 0)
+    ]
+]
+PIECE_5 = [
+    [
+    (0, 0), (0, 1), (0, 2), (0, 3)
+    ],
+    [
+    (0, 0), 
+    (1, 0), 
+    (2, 0), 
+    (3, 0)
+    ]
+]
+PIECE_6 = [
+    [
+    (0, 0), 
+    (1, 0), (1, 1), 
+            (2, 1)
+            ],
+    [
+            (0, 1), (0, 2), 
+    (1, 0), (1, 1)
+    ],
+    [
+            (0, 1), 
+    (1, 0), (1, 1), 
+    (2, 0)
+    ],
+    [
+    (0, 0), (0, 1), 
+            (1, 1), (1, 2)
+    ]
+]
+PIECE_7 = [
+    [
+             (0, 1), 
+    (1, 0), (1, 1), (1, 2)
+    ],
+    [
+    (0, 0), 
+    (1, 0), (1, 1),
+    (2, 0)
+    ],
+    [
+    (0, 0), (0, 1), (0, 2), 
+             (1, 1)
+    ],
+    [
+            (0, 1), 
+    (1, 0), (1, 1) ,
+            (2, 1)
+    ]
+]
+   
+PIECE_8 = [
+    [
+        (0, 0), 
+        (1, 0), 
+        (2, 0), (2, 1)
+    ],
+    [
+                (0, 1), 
+                (1, 1), 
+        (2, 0), (2, 1),
+    ],  
+    [
+                        (-1, 2),
+        (0, 0), (0, 1), (0, 2),
+    ],
+    [
+        (0, 0), (0, 1), (0, 2), 
+                        (1, 2)
+    ],
+    [
+        (0, 0), (0, 1),
+        (1, 0), 
+        (2, 0)
+    ],
+    [
+        (0, 0), (0, 1),
+                (1, 1), 
+                (2, 1)
+    ],  
+    [
+        (0, 0),
+        (1, 0), (1, 1), (1, 2),
+    ],
+    [
+        (0, 0), (0, 1), (0, 2), 
+        (1, 0)
+    ]
+]
+PIECE_9 = [
+    [
+        (0, 0), (0, 1), 
+        (1, 0), (1, 1)
+    ]
+]
+PIECE_COLORS = [
+    COLOR_GREEN,        
+    COLOR_CYAN,        
+    COLOR_YELLOW,      
+    COLOR_RED,         
+    COLOR_DARK_GREY,   
+    COLOR_PURPLE,      
+    COLOR_ORANGE,      
+    COLOR_BROWN,       
+    COLOR_BLUE,        
+    COLOR_BLACK       
+]
+
+pieces = [
+    PIECE_9,
+    PIECE_8,
+    PIECE_7,
+    PIECE_6,
+    PIECE_5,
+    PIECE_4,
+    PIECE_3,
+    PIECE_2,
+    PIECE_1
+]
