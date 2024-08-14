@@ -36,6 +36,8 @@ offset_x = 0
 offset_y = 0
 dragged_piece = None
 
+ai_solved = False
+
 
 
 def init_game():
@@ -305,7 +307,7 @@ def mouse_function():
 
 
 def roll_dices():
-    reset_table()
+    reset_table(False)
     for i in range (0, 7):
         dice_values[i] = POSSIBLE_DICE_VALUES[i][random.randrange(0,6)]
         table[dice_values[i][0]][dice_values[i][1]] = -1
@@ -313,10 +315,18 @@ def roll_dices():
     for i in range (1, 10):
         pieces.append(Piece(i))
 
-def reset_table():
+def reset_table(leave_dices):
     for i in range (0, 6):
         for j in range (0, 6):
-            table[i][j] = 0
+            if(leave_dices == False or table[i][j] > 0):
+                table[i][j] = 0
+
+def check_if_finished():
+    for i in range (0, 6):
+        for j in range (0, 6):
+            if(table[i][j] == 0): 
+                return False
+    return True
 
 def game_start(game_type):
 
@@ -348,30 +358,34 @@ def game_start(game_type):
                 roll_dices() # rolled dices
                 start_ticks = pygame.time.get_ticks()
                 
-            elif (button_pressed == 0): 
-                break
-                pygame.display.update()
+
             pygame.display.update()
+            if(check_if_finished()):
+                reset_table(True)
+                player_1_time = seconds_passed
+                break
+
 
 
         # player done playing , Ai turn
         thread = threading.Thread(target = solve, args=(table, PIECES))
         thread.start()
         print("STARTED SOLVING")
-
+        
+        start_ticks = pygame.time.get_ticks()
         while True:
             draw_game_screen()
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
             pygame.display.update()
+            if(ai_solved):
+                player_2_time = seconds_passed
+                break
+        if(player_1_time < player_2_time):
+            print("You won!")
+        else :
+            print("You lost!")
 
-
-        # if solve(table, pieces):
-        #     print("Solution found:")
-        #     for row in table:
-        #         print(row)
-        # else:
-        #     print("No solution exists.")
        
             
     

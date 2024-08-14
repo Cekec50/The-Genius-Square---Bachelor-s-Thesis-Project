@@ -30,10 +30,8 @@ def find_next_empty_position(board):
                 return (row, col)
     return None
 
-def solve(board, pieces, piece_index=0):
+def solve(board, pieces,  piece_index=0 ):
     if piece_index >= len(pieces):
-        print(board)
-        print("SOLVED!")
         return True  # All pieces have been placed
 
     for orientation in pieces[piece_index]:
