@@ -13,6 +13,8 @@ screen = pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
 clock = pygame.time.Clock()
 
 menu_font = pygame.font.SysFont('Garamond',35, bold = True)
+medium_font = pygame.font.SysFont('Garamond',50, bold = True)
+big_font = pygame.font.SysFont('Garamond',70, bold = True)
 
 table = [
             [0, 0, 0, 0, 0, 0],
@@ -99,7 +101,6 @@ def menu_screen():
         ai_button = pygame.Rect(AI_BUTTON_X,AI_BUTTON_Y,BUTTON_WIDTH,BUTTON_HEIGHT)
 
         text = "The Genius Square"
-        big_font = pygame.font.SysFont('Garamond',70, bold = True)
         text_surface = big_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/8) ))
 
@@ -448,18 +449,18 @@ def final_screen(time_player_tuple):
                 text = "You lost!"
             else:
                 text = "Player 2 won!"
-        text_surface = menu_font.render(text, True, COLOR_WHITE)
-        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3)))
+        text_surface = big_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/5)))
         
         text = "Player 1 time: " +  str(player_1_time) + " s"
-        text_surface = menu_font.render(text, True, COLOR_WHITE)
-        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 30) ))
+        text_surface = medium_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 50) ))
         if(time_player_tuple[2]):
             text = "Ai time: " +  str(player_2_time) + " s"
         else:
             text = "Player 2 time: " +  str(player_2_time) + " s"
-        text_surface = menu_font.render(text, True, COLOR_WHITE)
-        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 60) ))
+        text_surface = medium_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 100) ))
 
         BUTTON_WIDTH = WINDOW_WIDTH*5/6
         BUTTON_HEIGHT = 40
