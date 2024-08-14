@@ -36,7 +36,7 @@ offset_x = 0
 offset_y = 0
 dragged_piece = None
 
-ai_solved = False
+
 
 
 
@@ -93,16 +93,21 @@ def menu_screen():
         BUTTON_HEIGHT = 40
 
         QUIT_BUTTON_X = WINDOW_WIDTH*1/12
-        QUIT_BUTTON_Y = WINDOW_HEIGHT*3/4
+        QUIT_BUTTON_Y = WINDOW_HEIGHT*7/8
         quit_button = pygame.Rect(QUIT_BUTTON_X,QUIT_BUTTON_Y,BUTTON_WIDTH,BUTTON_HEIGHT)
         
         PLAYER_BUTTON_X = WINDOW_WIDTH*1/12
-        PLAYER_BUTTON_Y = WINDOW_HEIGHT*1/4
+        PLAYER_BUTTON_Y = WINDOW_HEIGHT*3/8
         player_button = pygame.Rect(PLAYER_BUTTON_X,PLAYER_BUTTON_Y,BUTTON_WIDTH,BUTTON_HEIGHT)
         
         AI_BUTTON_X = WINDOW_WIDTH*1/12
-        AI_BUTTON_Y = WINDOW_HEIGHT*1/2
+        AI_BUTTON_Y = WINDOW_HEIGHT*5/8
         ai_button = pygame.Rect(AI_BUTTON_X,AI_BUTTON_Y,BUTTON_WIDTH,BUTTON_HEIGHT)
+
+        text = "The Genius Square"
+        big_font = pygame.font.SysFont('Garamond',70, bold = True)
+        text_surface = big_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/8) ))
 
         draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE , 'QUIT')
         draw_interactive_button(player_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'PLAYER vs PLAYER')
@@ -116,6 +121,7 @@ def display_seconds_passed(start_ticks):
     seconds_passed = (pygame.time.get_ticks() - start_ticks) // 1000
     pygame.draw.rect(screen,COLOR_BACKGROUND,[110, 0, 190, INFO_BAR_y-2])
     screen.blit(menu_font.render(f'{seconds_passed} s' , True , COLOR_WHITE) , (110,20))
+    return seconds_passed
     
 def draw_interactive_button(button: pygame.Rect, mouse, color_passive, color_active, text_color , text):
     if button.collidepoint(mouse): 
@@ -136,11 +142,11 @@ def draw_label(label: pygame.Rect, color, text_color , text):
 
                 
 
-def draw_game_screen():
+def draw_game_screen(player_text):
 
     def draw_table():
         screen.fill(COLOR_BACKGROUND)
-        text = "Player 1 Turn"
+        text = player_text
         screen.blit(menu_font.render(text , True , COLOR_WHITE) , (WINDOW_WIDTH/4,20))
         text = "Time:"
         screen.blit(menu_font.render(text , True , COLOR_WHITE) , (10,20))
@@ -330,6 +336,7 @@ def check_if_finished():
 
 def game_start(game_type):
 
+
     if(game_type == 0): return
     if(game_type == 1): # PLAYER vs PLAYER
         
@@ -347,17 +354,19 @@ def game_start(game_type):
 
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0 
-
-        # thread = threading.Thread(target = draw_game_screen)
-        # thread.start()  
         while True:
-            draw_game_screen()
+            draw_game_screen("Player 1 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
             if (button_pressed == 1): 
                 roll_dices() # rolled dices
                 start_ticks = pygame.time.get_ticks()
-                
+            
+            if (button_pressed == 0):
+                pygame.display.update()
+                player_1_time = 10
+                break
+                     
 
             pygame.display.update()
             if(check_if_finished()):
@@ -374,19 +383,59 @@ def game_start(game_type):
         
         start_ticks = pygame.time.get_ticks()
         while True:
-            draw_game_screen()
+            draw_game_screen("Ai Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
             pygame.display.update()
-            if(ai_solved):
+            if not thread.is_alive():
                 player_2_time = seconds_passed
+                print("Going to finish screen")
                 break
-        if(player_1_time < player_2_time):
-            print("You won!")
-        else :
-            print("You lost!")
+        return (player_1_time, player_2_time, False)
 
-       
+def final_screen(time_player_tuple):
+    while True:
+        screen.fill(COLOR_BACKGROUND)
+        for ev in pygame.event.get(): 
+            
+            if ev.type == pygame.QUIT: 
+                pygame.quit() #checks if a mouse is clicked 
+            if ev.type == pygame.MOUSEBUTTONDOWN: 
+                if quit_button.collidepoint(ev.pos): 
+                    return 0
+        
+        mouse = pygame.mouse.get_pos()
+        player_1_time  = time_player_tuple[0]
+        player_2_time  = time_player_tuple[1]
+
+        if(player_1_time < player_2_time):
+            text = "You won!"
+        else :
+            text = "You lost!"
+        text_surface = menu_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3)))
+        
+        text = "Player 1 time: " +  str(player_1_time) + " s"
+        text_surface = menu_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 30) ))
+        if(time_player_tuple[2]):
+            text = "Player 2 time: " +  str(player_2_time) + " s"
+        else:
+            text = "Ai time: " +  str(player_2_time) + " s"
+        text_surface = menu_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 60) ))
+
+        BUTTON_WIDTH = WINDOW_WIDTH*5/6
+        BUTTON_HEIGHT = 40
+        QUIT_BUTTON_X = WINDOW_WIDTH*1/12
+        QUIT_BUTTON_Y = WINDOW_HEIGHT*3/4
+        PLAY_AGAIN_BUTTON_Y = WINDOW_HEIGHT*5/8
+        quit_button = pygame.Rect(QUIT_BUTTON_X,QUIT_BUTTON_Y,BUTTON_WIDTH,BUTTON_HEIGHT)
+        draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE , 'QUIT')
+        play_again_button = pygame.Rect(QUIT_BUTTON_X,PLAY_AGAIN_BUTTON_Y,BUTTON_WIDTH,BUTTON_HEIGHT)
+        draw_interactive_button(play_again_button, mouse,  COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'PLAY AGAIN')
+
+        pygame.display.update()
             
     
 
@@ -396,7 +445,9 @@ def main():
 
     game_type = menu_screen()
 
-    game_start(game_type)
+    time_player_tuple = game_start(game_type)
+
+    final_screen(time_player_tuple)
     
 
 

@@ -1,6 +1,7 @@
 from ConstValues import *
 import time
 
+
 def is_valid_position(board, piece, position):
     for cell in piece:
         row = position[0] + cell[0]
@@ -30,8 +31,9 @@ def find_next_empty_position(board):
                 return (row, col)
     return None
 
-def solve(board, pieces,  piece_index=0 ):
-    if piece_index >= len(pieces):
+def solve(board, pieces,  piece_index=8 ):
+    if piece_index < 0:
+        print("Solved")
         return True  # All pieces have been placed
 
     for orientation in pieces[piece_index]:
@@ -40,7 +42,7 @@ def solve(board, pieces,  piece_index=0 ):
                 if is_valid_position(board, orientation, (row, col)):
                     place_piece(board, orientation, (row, col), piece_index + 1)
                     time.sleep(0.02)
-                    if solve(board, pieces, piece_index + 1):
+                    if solve(board, pieces, piece_index - 1):
                         return True
                     remove_piece_solve(board, orientation, (row, col))
                     time.sleep(0.02)
