@@ -41,11 +41,11 @@ def solve(board, pieces,  piece_index=8 ):
             for col in range(len(board[0])):
                 if is_valid_position(board, orientation, (row, col)):
                     place_piece(board, orientation, (row, col), piece_index + 1)
-                    time.sleep(0.02)
+                    time.sleep(0.04)
                     if solve(board, pieces, piece_index - 1):
                         return True
                     remove_piece_solve(board, orientation, (row, col))
-                    time.sleep(0.02)
+                    time.sleep(0.04)
 
     return False
 

@@ -38,38 +38,32 @@ dragged_piece = None
 
 
 
+def reset_background():
+    background = pygame.image.load("images/arcade_background_small.jpg")
 
+    #INSIDE OF THE GAME LOOP
+    screen.blit(background, (0, 0))
 
 def init_game():
     pygame.display.set_caption("The Genius Square")
     
-    screen.fill(COLOR_BACKGROUND)
+    reset_background()
 
     for i in range(0, 6):
         for j in range(0, 6):
             table_coordinates[(i, j)] = (SQUARE_WIDTH*(j+1), SQUARE_HEIGHT*(i+1) + INFO_BAR_y + 2)
-
-    # for i in range (1, 10):
-    #     pieces.append(Piece(i))
-
-    pieces.append(Piece(1))
-    pieces.append(Piece(2))
-    pieces.append(Piece(3))
-    pieces.append(Piece(4))
-    pieces.append(Piece(5))
-    pieces.append(Piece(6))
-    pieces.append(Piece(7))
-    pieces.append(Piece(8))
-    pieces.append(Piece(9))
-
+   
+    create_pieces()
     
 
-    # background = pygame.image.load("images/wood_background.jpeg")
+    # background = pygame.image.load("images/arcade_background.jpeg")
 
     # #INSIDE OF THE GAME LOOP
     # screen.blit(background, (0, 0))
 
-
+def create_pieces():
+    for i in range (1, 10):
+        pieces.append(Piece(i))
 def menu_screen():
     while True: 
     
@@ -145,7 +139,7 @@ def draw_label(label: pygame.Rect, color, text_color , text):
 def draw_game_screen(player_text):
 
     def draw_table():
-        screen.fill(COLOR_BACKGROUND)
+        reset_background()
         text = player_text
         screen.blit(menu_font.render(text , True , COLOR_WHITE) , (WINDOW_WIDTH/4,20))
         text = "Time:"
@@ -174,6 +168,7 @@ def draw_game_screen(player_text):
         for piece in pieces:
             piece.draw(screen)
 
+        # Draw table
         for i in range(0, 6):
             for j in range(0, 6):
                 if(table[i][j] == -1):
@@ -308,8 +303,8 @@ def mouse_function():
         
 
     draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE, "QUIT")
-    draw_interactive_button(roll_button, mouse, COLOR_LIGHT_GREY, COLOR_DARK_GREY,  COLOR_WHITE, "ROLL")
-    draw_interactive_button(rotate_button, mouse, COLOR_LIGHT_GREY, COLOR_DARK_GREY,  COLOR_WHITE, "ROTATE")
+    draw_interactive_button(roll_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY,  COLOR_WHITE, "ROLL")
+    draw_interactive_button(rotate_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY,  COLOR_WHITE, "ROTATE")
 
 
 def roll_dices():
@@ -339,16 +334,48 @@ def game_start(game_type):
 
     if(game_type == 0): return
     if(game_type == 1): # PLAYER vs PLAYER
-        
-        
-        start_ticks = pygame.time.get_ticks() 
+       
+        start_ticks = pygame.time.get_ticks()
+        seconds_passed = 0 
         while True:
-            display_seconds_passed(start_ticks)
+            draw_game_screen("Player 1 Turn")
+            seconds_passed = display_seconds_passed(start_ticks)
+            button_pressed = mouse_function()
+            if (button_pressed == 1): 
+                roll_dices() # rolled dices
+                start_ticks = pygame.time.get_ticks()
+            
+            if (button_pressed == 0):
+                pygame.display.update()
+                player_1_time = 10
+                break
+                     
 
-
-            draw_game_screen()
-            mouse_function()
             pygame.display.update()
+            if(check_if_finished()):
+                reset_table(True)
+                create_pieces()
+                player_1_time = seconds_passed
+                break
+
+        
+        start_ticks = pygame.time.get_ticks()
+        while True:
+            draw_game_screen("Player 2 Turn")
+            seconds_passed = display_seconds_passed(start_ticks)
+            button_pressed = mouse_function()
+            if (button_pressed == 1): 
+                roll_dices() # rolled dices
+                start_ticks = pygame.time.get_ticks()
+                 
+
+            pygame.display.update()
+            if(check_if_finished()):
+                reset_table(True)
+                player_2_time = seconds_passed
+                break
+
+        return (player_1_time, player_2_time, False)
 
     else: # PLAYER vs Ai
 
@@ -388,30 +415,39 @@ def game_start(game_type):
             button_pressed = mouse_function()
             pygame.display.update()
             if not thread.is_alive():
+                reset_table(False)
                 player_2_time = seconds_passed
                 print("Going to finish screen")
                 break
-        return (player_1_time, player_2_time, False)
+        return (player_1_time, player_2_time, True)
 
 def final_screen(time_player_tuple):
     while True:
-        screen.fill(COLOR_BACKGROUND)
+        reset_background()
         for ev in pygame.event.get(): 
             
             if ev.type == pygame.QUIT: 
                 pygame.quit() #checks if a mouse is clicked 
             if ev.type == pygame.MOUSEBUTTONDOWN: 
                 if quit_button.collidepoint(ev.pos): 
-                    return 0
+                    return False
+                if play_again_button.collidepoint(ev.pos): 
+                    return True
         
         mouse = pygame.mouse.get_pos()
         player_1_time  = time_player_tuple[0]
         player_2_time  = time_player_tuple[1]
 
         if(player_1_time < player_2_time):
-            text = "You won!"
+            if(time_player_tuple[2]):
+                text = "You won!"
+            else:
+                text = "Player 1 won!"
         else :
-            text = "You lost!"
+            if(time_player_tuple[2]):
+                text = "You lost!"
+            else:
+                text = "Player 2 won!"
         text_surface = menu_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3)))
         
@@ -419,9 +455,9 @@ def final_screen(time_player_tuple):
         text_surface = menu_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 30) ))
         if(time_player_tuple[2]):
-            text = "Player 2 time: " +  str(player_2_time) + " s"
-        else:
             text = "Ai time: " +  str(player_2_time) + " s"
+        else:
+            text = "Player 2 time: " +  str(player_2_time) + " s"
         text_surface = menu_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 60) ))
 
@@ -441,13 +477,15 @@ def final_screen(time_player_tuple):
 
 
 def main():
-    init_game()
+    play_again = True
+    while play_again:
+        init_game()
 
-    game_type = menu_screen()
+        game_type = menu_screen()
 
-    time_player_tuple = game_start(game_type)
+        time_player_tuple = game_start(game_type)
 
-    final_screen(time_player_tuple)
+        play_again = final_screen(time_player_tuple)
     
 
 

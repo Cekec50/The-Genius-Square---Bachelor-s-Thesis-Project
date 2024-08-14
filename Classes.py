@@ -26,8 +26,8 @@ class Piece():
         self.__selected_rect = None
         self.__selected_rect_index = 0
         for tuple in self.__orientation:
-            x_coord = PIECE_WINDOW_x + 2 + tuple[1]*SQUARE_WIDTH + (PIECE_START_OFFSET[self.__type])[1]*SQUARE_WIDTH 
-            y_coord =  PIECE_WINDOW_y+ 2 +  tuple[0]*SQUARE_HEIGHT + (PIECE_START_OFFSET[self.__type])[0]*SQUARE_HEIGHT
+            x_coord = PIECE_WINDOW_x + 2 + tuple[1]*SQUARE_WIDTH + (PIECE_START_OFFSET[self.__type])[1]*SQUARE_WIDTH  + SQUARE_WIDTH
+            y_coord =  PIECE_WINDOW_y+ 2 +  tuple[0]*SQUARE_HEIGHT + (PIECE_START_OFFSET[self.__type])[0]*SQUARE_HEIGHT + SQUARE_HEIGHT/2
             self.__rect_list.append(pygame.Rect(x_coord, y_coord, SQUARE_WIDTH, SQUARE_HEIGHT))
         
     def get_type(self):
