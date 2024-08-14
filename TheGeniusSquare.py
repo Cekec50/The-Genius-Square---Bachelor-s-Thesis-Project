@@ -338,6 +338,7 @@ def game_start(game_type):
        
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0 
+        roll_dices() 
         while True:
             draw_game_screen("Player 1 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
@@ -381,7 +382,8 @@ def game_start(game_type):
     else: # PLAYER vs Ai
 
         start_ticks = pygame.time.get_ticks()
-        seconds_passed = 0 
+        seconds_passed = 0
+        roll_dices() 
         while True:
             draw_game_screen("Player 1 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
