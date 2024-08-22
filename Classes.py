@@ -78,10 +78,3 @@ class Piece():
                 rect.x = x + relative_rect_coord[1] * SQUARE_WIDTH
                 rect.y = y + relative_rect_coord[0] * SQUARE_HEIGHT
 
-class Node:
-    def __init__(self, state = tuple(), steps = tuple(), heuristic = -1,total_cost = 0, evaluation = 0):
-        self.current_state = tuple(state)
-        self.steps = tuple(steps)
-        self.heuristic = heuristic
-        self.total_cost = total_cost
-        self.evaluation = evaluation
