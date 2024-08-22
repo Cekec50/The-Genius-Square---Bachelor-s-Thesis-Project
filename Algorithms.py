@@ -110,9 +110,9 @@ def brute_force_solve(board, pieces):
         if valid:
             print("SOLVED")
             print(number_of_moves)
-            return board
+            return True
     print("NOT SOLVED")
-    return None
+    return False
 
 
 
