@@ -43,7 +43,6 @@ dragged_piece = None
 def reset_background():
     background = pygame.image.load("images/arcade_background_small.jpg")
 
-    #INSIDE OF THE GAME LOOP
     screen.blit(background, (0, 0))
 
 def create_pieces():
@@ -80,10 +79,12 @@ def menu_screen():
                     
         mouse = pygame.mouse.get_pos() 
 
+        # Title
         text = "The Genius Square"
         text_surface = big_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/8) ))
         
+        # Menu buttons
         quit_button = pygame.Rect(THIRD_MENU_BUTTON_X,THIRD_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
         player_button = pygame.Rect(FIRST_MENU_BUTTON_X,FIRST_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
         ai_button = pygame.Rect(SECOND_MENU_BUTTON_X,SECOND_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
@@ -95,12 +96,14 @@ def menu_screen():
         pygame.display.update()
 
 def display_seconds_passed(start_ticks):
+    # Updating seconds passed
     seconds_passed = (pygame.time.get_ticks() - start_ticks) // 1000
     pygame.draw.rect(screen,COLOR_BACKGROUND,[110, 0, 190, INFO_BAR_y-2])
     screen.blit(menu_font.render(f'{seconds_passed} s' , True , COLOR_WHITE) , (110,20))
     return seconds_passed
     
 def draw_interactive_button(button: pygame.Rect, mouse, color_passive, color_active, text_color , text):
+    # Draw button with centered text
     if button.collidepoint(mouse): 
         pygame.draw.rect(screen, color_active, button) 
     else: 
@@ -111,6 +114,7 @@ def draw_interactive_button(button: pygame.Rect, mouse, color_passive, color_act
     screen.blit(text_surface, text_rect)
 
 def draw_label(label: pygame.Rect, color, text_color , text):
+    # Draw rectangle with centerd text
     pygame.draw.rect(screen, color, label) 
     pygame.draw.rect(screen,text_color, label, width = 2)
     text_surface = menu_font.render(text, True, text_color)
@@ -123,8 +127,9 @@ def draw_game_screen(player_text):
 
     def draw_table():
         reset_background()
-        text = player_text
 
+        # Text at the top
+        text = player_text
         text_surface = menu_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface, text_surface.get_rect(center=(WINDOW_WIDTH/2,INFO_BAR_y/2)))
 
@@ -176,20 +181,32 @@ def mouse_function():
         start_coord = orientation[piece.get_selected_rect_index()]
         for coords in orientation:
             relative_coordinate = (coords[0] - start_coord[0], coords[1] - start_coord[1])
-            if(table[field_coordinate[0] + relative_coordinate[0]][field_coordinate[1] + relative_coordinate[1]] != 0):
+            table_coordinate_x = field_coordinate[0] + relative_coordinate[0]
+            table_coordinate_y = field_coordinate[1] + relative_coordinate[1]
+            # If piece is out of bounds
+            if(table_coordinate_x < 0 or table_coordinate_x > 5 or table_coordinate_y < 0 or table_coordinate_y > 5):
+                
+                return False
+            # If piece doesnćt fit
+            if(table[table_coordinate_x][table_coordinate_y] != 0):
                 return False
         return True
     def put_piece(field_coordinate, piece):
         orientation = piece.get_orientation()
         start_coord = orientation[piece.get_selected_rect_index()]
+        # Place piece
         for coords in orientation:
             relative_coordinate = (coords[0] - start_coord[0], coords[1] - start_coord[1])
-            table[field_coordinate[0] + relative_coordinate[0]][field_coordinate[1] + relative_coordinate[1]] = piece.get_type()
+            table_coordinate_x = field_coordinate[0] + relative_coordinate[0]
+            table_coordinate_y = field_coordinate[1] + relative_coordinate[1]
+            table[table_coordinate_x][table_coordinate_y] = piece.get_type()
+        # Piece is placed on the board, remove it from movable pieces on screen
         for temp in pieces:
             if (temp == piece):
                 pieces.remove(temp)
             
     def dropping_over_field(pos):
+        # Check if piece is being held over board
         for i in range(0, 6):
             for j in range(0, 6):
                 if(table_coordinates[(i, j)][0] < pos[0] < table_coordinates[(i, j)][0] + SQUARE_WIDTH and
@@ -198,6 +215,7 @@ def mouse_function():
                         return (i, j)
         return None
     def clicking_on_field(pos):
+        # Check if mouse is clicked on the board
         for i in range(0, 6):
             for j in range(0, 6):
                 if(table_coordinates[(i, j)][0] < pos[0] < table_coordinates[(i, j)][0] + SQUARE_WIDTH and
@@ -206,6 +224,7 @@ def mouse_function():
                             return (i, j)
         return None
     def remove_piece(type):
+        # Remove piece, add it to movable pieces
         for i in range(0, 6):
             for j in range(0, 6):
                 if(table[i][j] == type):
@@ -241,15 +260,17 @@ def mouse_function():
     roll_button = pygame.Rect(ROLL_BUTTON_X, ROLL_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT)
     rotate_button = pygame.Rect(ROTATE_BUTTON_X, ROTATE_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT)
 
-    for ev in pygame.event.get(): 
+    for ev in pygame.event.get():
+        # Exited screen 
         if ev.type == pygame.QUIT: 
             return 0
-         # Mouse button down event
+        # Space key clicked
         if ev.type == pygame.KEYDOWN:
             if ev.key == pygame.K_SPACE:
                 if(selected_piece != None):
                     selected_piece.rotate()
                 return 2
+        # Mouse clicked
         if ev.type == pygame.MOUSEBUTTONDOWN: 
             if quit_button.collidepoint(mouse): 
                 return 0 
@@ -259,10 +280,12 @@ def mouse_function():
                 if(selected_piece != None):
                     selected_piece.rotate()
                 return 2
+            # Piece removing from board
             field_coordinate = clicking_on_field(ev.pos)
             if(field_coordinate != None):
                 type = table[field_coordinate[0]][field_coordinate[1]]
                 remove_piece(type)
+        
             for piece in pieces: 
                 if piece.hovered_over(ev.pos):
                     # Select piece
@@ -282,7 +305,7 @@ def mouse_function():
                     break
             
             
-        # Mouse button up event
+        # Mouse button up 
         elif ev.type == pygame.MOUSEBUTTONUP:
             if(dragging):
                field_coordinate = dropping_over_field(ev.pos)
@@ -294,7 +317,7 @@ def mouse_function():
             dragging = False
             dragged_piece = None
 
-        # Mouse motion event
+        # Mouse moving
         elif ev.type == pygame.MOUSEMOTION and dragging:
             dragged_piece.move(ev.pos, ev.pos[0] + offset_x, ev.pos[1] + offset_y)
         
@@ -325,6 +348,7 @@ def check_if_finished():
             if(table[i][j] == 0): 
                 return False
     return True
+
 def game_start(game_type):
     
     def choose_difficulty_screen():
@@ -333,10 +357,10 @@ def game_start(game_type):
                 if ev.type == pygame.QUIT: 
                     return 0
                 if ev.type == pygame.MOUSEBUTTONDOWN: 
-                    if easy_button.collidepoint(ev.pos): 
-                        return 1
-                    #if inter_button.collidepoint(ev.pos): 
-                        #return 2 
+                    #if easy_button.collidepoint(ev.pos): 
+                        #return 1
+                    if inter_button.collidepoint(ev.pos): 
+                        return 2 
                     if hard_button.collidepoint(ev.pos): 
                         return 3
         
@@ -347,30 +371,32 @@ def game_start(game_type):
             text_surface = big_font.render(text, True, COLOR_WHITE)
             screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/8) ))
 
-            easy_button = pygame.Rect(FIRST_MENU_BUTTON_X,FIRST_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
-            #inter_button = pygame.Rect(SECOND_MENU_BUTTON_X,SECOND_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
-            hard_button = pygame.Rect(THIRD_MENU_BUTTON_X,THIRD_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
+            #easy_button = pygame.Rect(FIRST_MENU_BUTTON_X,FIRST_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
+            inter_button = pygame.Rect(FIRST_DIFF_BUTTON_X,FIRST_DIFF_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
+            hard_button = pygame.Rect(SECOND_DIFF_BUTTON_X,SECOND_DIFF_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
 
             draw_interactive_button(hard_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'HARD')
-            #draw_interactive_button(inter_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'INTERMEDIATE')
-            draw_interactive_button(easy_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'EASY')
+            draw_interactive_button(inter_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'INTERMEDIATE')
+            #draw_interactive_button(easy_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'EASY')
 
             text = "Quick placement, bad strategy"
             text_surface = menu_font.render(text, True, COLOR_WHITE)
-            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,FIRST_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
+            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,FIRST_DIFF_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
             #text = "not implemented, same as hard"
             #text_surface = menu_font.render(text, True, COLOR_WHITE)
             #screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,SECOND_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
             text = "Slow placement, great strategy"
             text_surface = menu_font.render(text, True, COLOR_WHITE)
-            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,THIRD_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
+            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,SECOND_DIFF_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
             pygame.display.update()
 
 
-
+    # Exit
     if(game_type == 0): return
-    if(game_type == 1): # PLAYER vs PLAYER
-       
+
+    # PLAYER vs PLAYER 
+    if(game_type == 1): 
+        # Keep track of time
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0 
         roll_dices() 
@@ -378,10 +404,11 @@ def game_start(game_type):
             draw_game_screen("Player 1 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
+            # If clicked on ROLL
             if (button_pressed == 1): 
-                roll_dices() # rolled dices
+                roll_dices() 
                 start_ticks = pygame.time.get_ticks()
-            
+            # If clicked on QUIT
             if (button_pressed == 0):
                 pygame.quit()
                 return None
@@ -391,6 +418,7 @@ def game_start(game_type):
                      
 
             pygame.display.update()
+            # Check if player completed puzzle
             if(check_if_finished()):
                 reset_table(True)
                 create_pieces()
@@ -399,6 +427,7 @@ def game_start(game_type):
 
         
         #time.sleep(3)
+        # Same code as before
         start_ticks = pygame.time.get_ticks()
         while True:
             draw_game_screen("Player 2 Turn")
@@ -420,21 +449,25 @@ def game_start(game_type):
                 break
 
         return (player_1_time, player_2_time, False)
-
-    else: # PLAYER vs Ai
+    
+    # PLAYER vs Ai
+    else: 
         difficulty = choose_difficulty_screen()
+        # If exited screen
         if(difficulty == 0):
             pygame.quit()
             return None
+        # Keep track of time
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0
         roll_dices() 
         while True:
+            # Check if player completed puzzle
             if(check_if_finished()):
                 reset_table(True)
                 player_1_time = seconds_passed
                 break
-
+            # Same code as before
             draw_game_screen("Player 1 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
@@ -455,7 +488,8 @@ def game_start(game_type):
 
         # time.sleep(3)
         # Player done playing , Ai turn
-        if(difficulty == 1):
+        # Start thread based on chosen difficulty
+        if(difficulty == 2):
             thread = threading.Thread(target = brute_force_solve, args=(table, PIECES))
         else:
             thread = threading.Thread(target = dfs_solve, args=(table, PIECES))
@@ -474,6 +508,7 @@ def game_start(game_type):
                 return None
             pygame.display.update()
 
+            # Wait for solving to be finished
             if not thread.is_alive():
                 reset_table(False)
                 player_2_time = seconds_passed
@@ -485,56 +520,57 @@ def game_start(game_type):
         return (player_1_time, player_2_time, True)
 
 def final_screen(time_player_tuple):
-        while True:
-            reset_background()
-            for ev in pygame.event.get(): 
-                
-                if ev.type == pygame.QUIT: 
-                    pygame.quit() 
-                    return False
-                if ev.type == pygame.MOUSEBUTTONDOWN: 
-                    if quit_button.collidepoint(ev.pos): 
-                        return False
-                    if play_again_button.collidepoint(ev.pos): 
-                        return True
-            mouse = pygame.mouse.get_pos()
-            player_1_time  = time_player_tuple[0]
-            player_2_time  = time_player_tuple[1]
-
-            if(player_1_time < player_2_time):
-                if(time_player_tuple[2]):
-                    text = "You won!"
-                else:
-                    text = "Player 1 won!"
-            else :
-                if(time_player_tuple[2]):
-                    text = "You lost!"
-                else:
-                    text = "Player 2 won!"
-            text_surface = big_font.render(text, True, COLOR_WHITE)
-            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/5)))
+    # Draw final screen
+    while True:
+        reset_background()
+        for ev in pygame.event.get(): 
             
-            text = "Player 1 time: " +  str(player_1_time) + " s"
-            text_surface = medium_font.render(text, True, COLOR_WHITE)
-            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 50) ))
+            if ev.type == pygame.QUIT: 
+                pygame.quit() 
+                return False
+            if ev.type == pygame.MOUSEBUTTONDOWN: 
+                if quit_button.collidepoint(ev.pos): 
+                    return False
+                if play_again_button.collidepoint(ev.pos): 
+                    return True
+        mouse = pygame.mouse.get_pos()
+        player_1_time  = time_player_tuple[0]
+        player_2_time  = time_player_tuple[1]
+
+        if(player_1_time < player_2_time):
             if(time_player_tuple[2]):
-                text = "Ai time: " +  str(player_2_time) + " s"
+                text = "You won!"
             else:
-                text = "Player 2 time: " +  str(player_2_time) + " s"
-            text_surface = medium_font.render(text, True, COLOR_WHITE)
-            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 100) ))
+                text = "Player 1 won!"
+        else :
+            if(time_player_tuple[2]):
+                text = "You lost!"
+            else:
+                text = "Player 2 won!"
+        text_surface = big_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/5)))
+        
+        text = "Player 1 time: " +  str(player_1_time) + " s"
+        text_surface = medium_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 50) ))
+        if(time_player_tuple[2]):
+            text = "Ai time: " +  str(player_2_time) + " s"
+        else:
+            text = "Player 2 time: " +  str(player_2_time) + " s"
+        text_surface = medium_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/3 + 100) ))
 
-            QUIT_BUTTON_X = WINDOW_WIDTH*1/12
-            QUIT_BUTTON_Y = WINDOW_HEIGHT*3/4
+        QUIT_BUTTON_X = WINDOW_WIDTH*1/12
+        QUIT_BUTTON_Y = WINDOW_HEIGHT*3/4
 
-            PLAY_AGAIN_BUTTON_Y = WINDOW_HEIGHT*5/8
+        PLAY_AGAIN_BUTTON_Y = WINDOW_HEIGHT*5/8
 
-            quit_button = pygame.Rect(QUIT_BUTTON_X,QUIT_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
-            draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE , 'QUIT')
-            play_again_button = pygame.Rect(QUIT_BUTTON_X,PLAY_AGAIN_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
-            draw_interactive_button(play_again_button, mouse,  COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'PLAY AGAIN')
+        quit_button = pygame.Rect(QUIT_BUTTON_X,QUIT_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
+        draw_interactive_button(quit_button, mouse, COLOR_DARK_RED, COLOR_RED, COLOR_WHITE , 'QUIT')
+        play_again_button = pygame.Rect(QUIT_BUTTON_X,PLAY_AGAIN_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
+        draw_interactive_button(play_again_button, mouse,  COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'PLAY AGAIN')
 
-            pygame.display.update()
+        pygame.display.update()
             
     
 
@@ -558,11 +594,7 @@ def main():
 #         roll_dices()
 #         pieces = PIECES
 #         brute_force_solve(table, pieces)
-
-        
-
-    
-
+ 
 
 if __name__ == "__main__":
     main()
