@@ -17,12 +17,12 @@ medium_font = pygame.font.SysFont('Garamond',50, bold = True)
 big_font = pygame.font.SysFont('Garamond',70, bold = True)
 
 table = [
-            [0, 0, 0, 0, 0, 0],
-            [0, -1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [-1, 0, -1, 0, -1, -1],
+            [0, 0, 0, -1, 0, -1],
             [-1, 0, 0, 0, 0, 0],
-            [-1, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, -1, -1, 0, -1, 0],
+            [0, -1, 0, 0, 0, 0]
         ]
 
 table_coordinates = {}
@@ -66,7 +66,8 @@ def menu_screen():
     
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT: 
-                pygame.quit() 
+                pygame.quit()
+                return 0 
                 
             # Check if a mouse is clicked 
             if ev.type == pygame.MOUSEBUTTONDOWN: 
@@ -335,8 +336,8 @@ def game_start(game_type):
                 if ev.type == pygame.MOUSEBUTTONDOWN: 
                     if easy_button.collidepoint(ev.pos): 
                         return 0
-                    if inter_button.collidepoint(ev.pos): 
-                        return 1 
+                    #if inter_button.collidepoint(ev.pos): 
+                        #return 1 
                     if hard_button.collidepoint(ev.pos): 
                         return 2
         
@@ -348,12 +349,22 @@ def game_start(game_type):
             screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/8) ))
 
             easy_button = pygame.Rect(FIRST_MENU_BUTTON_X,FIRST_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
-            inter_button = pygame.Rect(SECOND_MENU_BUTTON_X,SECOND_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
+            #inter_button = pygame.Rect(SECOND_MENU_BUTTON_X,SECOND_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
             hard_button = pygame.Rect(THIRD_MENU_BUTTON_X,THIRD_MENU_BUTTON_Y,MENU_BUTTON_WIDTH,MENU_BUTTON_HEIGHT)
 
             draw_interactive_button(hard_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'HARD')
-            draw_interactive_button(inter_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'INTERMEDIATE')
+            #draw_interactive_button(inter_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'INTERMEDIATE')
             draw_interactive_button(easy_button, mouse, COLOR_DARK_GREY, COLOR_LIGHT_GREY, COLOR_WHITE , 'EASY')
+
+            text = "Quick placement, bad strategy"
+            text_surface = menu_font.render(text, True, COLOR_WHITE)
+            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,FIRST_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
+            #text = "not implemented, same as hard"
+            #text_surface = menu_font.render(text, True, COLOR_WHITE)
+            #screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,SECOND_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
+            text = "Slow placement, great strategy"
+            text_surface = menu_font.render(text, True, COLOR_WHITE)
+            screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,THIRD_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
             pygame.display.update()
 
 
@@ -373,6 +384,7 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
+                return None
                 pygame.display.update()
                 player_1_time = 10
                 break
@@ -392,9 +404,11 @@ def game_start(game_type):
             draw_game_screen("Player 2 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
-            if (button_pressed == 1): 
-                roll_dices() # rolled dices
-                start_ticks = pygame.time.get_ticks()
+            if (button_pressed == 0):
+                return None
+                pygame.display.update()
+                player_1_time = 10
+                break
                  
 
             pygame.display.update()
@@ -410,13 +424,13 @@ def game_start(game_type):
         difficulty = choose_difficulty_screen()
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0
-        #roll_dices() 
+        roll_dices() 
         while True:
-            
             if(check_if_finished()):
                 reset_table(True)
                 player_1_time = seconds_passed
                 break
+
             draw_game_screen("Player 1 Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
@@ -425,6 +439,7 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
+                return None
                 pygame.display.update()
                 player_1_time = 10
                 break
@@ -435,10 +450,12 @@ def game_start(game_type):
 
         # time.sleep(3)
         # Player done playing , Ai turn
-        # ADD DIFFICULTY TO ARGS
-        #thread = threading.Thread(target = solve, args=(table, PIECES))
-        thread = threading.Thread(target = astar_solve, args=(table, PIECES))
+        if(difficulty == 0):
+            thread = threading.Thread(target = brute_force_solve, args=(table, PIECES))
+        else:
+            thread = threading.Thread(target = dfs_solve, args=(table, PIECES))
 
+        thread.daemon = True
         thread.start()
         print("STARTED SOLVING")
         
@@ -447,13 +464,18 @@ def game_start(game_type):
             draw_game_screen("Ai Turn")
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
+            if (button_pressed == 0):
+                return None
             pygame.display.update()
+
             if not thread.is_alive():
                 reset_table(False)
                 player_2_time = seconds_passed
                 print("Going to finish screen")
                 #time.sleep(3)
                 break
+        
+        time.sleep(2)
         return (player_1_time, player_2_time, True)
 
 def final_screen(time_player_tuple):
@@ -463,6 +485,7 @@ def final_screen(time_player_tuple):
                 
                 if ev.type == pygame.QUIT: 
                     pygame.quit() 
+                    return False
                 if ev.type == pygame.MOUSEBUTTONDOWN: 
                     if quit_button.collidepoint(ev.pos): 
                         return False
@@ -516,10 +539,22 @@ def main():
         init_game()
 
         game_type = menu_screen()
+        if(game_type == 0): break
 
         time_player_tuple = game_start(game_type)
+        if(time_player_tuple == None): break
 
         play_again = final_screen(time_player_tuple)
+
+# def main():
+#     for i in range(0, 10000):
+#         reset_table(False)
+#         roll_dices()
+#         pieces = PIECES
+#         brute_force_solve(table, pieces)
+
+        
+
     
 
 
