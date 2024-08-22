@@ -243,7 +243,6 @@ def mouse_function():
 
     for ev in pygame.event.get(): 
         if ev.type == pygame.QUIT: 
-            pygame.quit()
             return 0
          # Mouse button down event
         if ev.type == pygame.KEYDOWN:
@@ -332,14 +331,14 @@ def game_start(game_type):
         while True:
             for ev in pygame.event.get(): 
                 if ev.type == pygame.QUIT: 
-                    pygame.quit()
+                    return 0
                 if ev.type == pygame.MOUSEBUTTONDOWN: 
                     if easy_button.collidepoint(ev.pos): 
-                        return 0
+                        return 1
                     #if inter_button.collidepoint(ev.pos): 
-                        #return 1 
+                        #return 2 
                     if hard_button.collidepoint(ev.pos): 
-                        return 2
+                        return 3
         
             reset_background()
             mouse = pygame.mouse.get_pos() 
@@ -384,6 +383,7 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
+                pygame.quit()
                 return None
                 pygame.display.update()
                 player_1_time = 10
@@ -405,6 +405,7 @@ def game_start(game_type):
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
             if (button_pressed == 0):
+                pygame.quit()
                 return None
                 pygame.display.update()
                 player_1_time = 10
@@ -422,6 +423,9 @@ def game_start(game_type):
 
     else: # PLAYER vs Ai
         difficulty = choose_difficulty_screen()
+        if(difficulty == 0):
+            pygame.quit()
+            return None
         start_ticks = pygame.time.get_ticks()
         seconds_passed = 0
         roll_dices() 
@@ -439,6 +443,7 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
+                pygame.quit()
                 return None
                 pygame.display.update()
                 player_1_time = 10
@@ -450,7 +455,7 @@ def game_start(game_type):
 
         # time.sleep(3)
         # Player done playing , Ai turn
-        if(difficulty == 0):
+        if(difficulty == 1):
             thread = threading.Thread(target = brute_force_solve, args=(table, PIECES))
         else:
             thread = threading.Thread(target = dfs_solve, args=(table, PIECES))
@@ -465,6 +470,7 @@ def game_start(game_type):
             seconds_passed = display_seconds_passed(start_ticks)
             button_pressed = mouse_function()
             if (button_pressed == 0):
+                pygame.quit()
                 return None
             pygame.display.update()
 
