@@ -78,3 +78,35 @@ class Piece():
                 rect.x = x + relative_rect_coord[1] * SQUARE_WIDTH
                 rect.y = y + relative_rect_coord[0] * SQUARE_HEIGHT
 
+class Node:
+    __board_state = []
+    __pieces = []
+    __heuristics = 0
+    __total_cost = 0
+    __evaluation = 0
+
+    def __init__(self, board_state, pieces, heuristics = -1, total_cost = 0, evalutaion = 0):
+        self.__board_state = board_state
+        self.__pieces = pieces
+        self.__heuristics = heuristics
+        self.__total_cost = total_cost
+        self.__evaluation = evalutaion
+    
+    def set_heuristics(self, heuristics):
+        self.__heuristics = heuristics
+
+    def set_total_cost(self, total_cost):
+        self.__total_cost = total_cost
+
+    def set_evaluation(self, evaluation):
+        self.__evaluation = evaluation
+
+    def get_board_state(self):
+        return self.__board_state
+    
+    def get_pieces(self):
+        return self.__pieces
+    
+    def get_evaluation(self):
+        return self.__evaluation
+    
