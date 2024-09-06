@@ -81,15 +81,15 @@ class Piece():
 class Node:
     __board_state = []
     __pieces = []
-    __heuristics = 0
-    __total_cost = 0
+    #__heuristics = 0
+    #__total_cost = 0
     __evaluation = 0
 
     def __init__(self, board_state, pieces, heuristics = -1, total_cost = 0, evalutaion = 0):
         self.__board_state = board_state
         self.__pieces = pieces
-        self.__heuristics = heuristics
-        self.__total_cost = total_cost
+        #self.__heuristics = heuristics
+        #self.__total_cost = total_cost
         self.__evaluation = evalutaion
     
     def set_heuristics(self, heuristics):
@@ -98,8 +98,8 @@ class Node:
     def set_total_cost(self, total_cost):
         self.__total_cost = total_cost
 
-    def set_evaluation(self, evaluation):
-        self.__evaluation = evaluation
+    #def set_evaluation(self, evaluation):
+        #self.__evaluation = evaluation
 
     def get_board_state(self):
         return self.__board_state
@@ -107,6 +107,9 @@ class Node:
     def get_pieces(self):
         return self.__pieces
     
-    def get_evaluation(self):
-        return self.__evaluation
+    #def get_evaluation(self):
+        #return self.__evaluation
+    
+    def get_heuristics(self):
+        return self.__heuristics
     

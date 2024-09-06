@@ -1,9 +1,11 @@
-import pygame
 from ConstValues import *
 from Classes import *
+from Algorithms import *
+
+import pygame
 import threading
 import random
-from Algorithms import *
+import time
 
 
 pygame.init()
@@ -132,6 +134,10 @@ def draw_game_screen(player_text):
         text = player_text
         text_surface = menu_font.render(text, True, COLOR_WHITE)
         screen.blit(text_surface, text_surface.get_rect(center=(WINDOW_WIDTH/2,INFO_BAR_y/2)))
+
+        text = "Tip: Rotate pieces using SPACE"
+        text_surface = menu_font.render(text, True, COLOR_WHITE)
+        screen.blit(text_surface, text_surface.get_rect(center=(WINDOW_WIDTH/2 + PIECE_WINDOW_x/2,BOTTOM_BAR_y + SQUARE_HEIGHT/2)))
 
         text = "Time:"
         screen.blit(menu_font.render(text , True , COLOR_WHITE) , (10,20))
@@ -377,10 +383,10 @@ def game_start(game_type):
             text = "Quick placement, bad strategy (Brute Force)"
             text_surface = menu_font.render(text, True, COLOR_WHITE)
             screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,FIRST_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
-            text = "Very slow placement, excellent strategy (A*)"
+            text = "Slow placement, great strategy (DFS)"
             text_surface = menu_font.render(text, True, COLOR_WHITE)
             screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,SECOND_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
-            text = "Slow placement, great strategy (DFS)"
+            text = "Very slow placement, excellent strategy (Best-First)"
             text_surface = menu_font.render(text, True, COLOR_WHITE)
             screen.blit(text_surface , text_surface.get_rect(center=(WINDOW_WIDTH/2,THIRD_MENU_BUTTON_Y - MENU_BUTTON_HEIGHT) ))
             pygame.display.update()
@@ -471,11 +477,11 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
-                #pygame.quit()
-                #return None
-                pygame.display.update()
-                player_1_time = 10
-                break
+                pygame.quit()
+                return None
+                #pygame.display.update()
+                #player_1_time = 10
+                #break
                      
 
             pygame.display.update()
@@ -487,9 +493,9 @@ def game_start(game_type):
         if(difficulty == 1):
             thread = threading.Thread(target = brute_force_solve, args=(table, PIECES))
         elif(difficulty == 2):
-            thread = threading.Thread(target = a_star, args=(table, PIECES))
-        else:
             thread = threading.Thread(target = dfs_solve, args=(table, PIECES))
+        else:
+            thread = threading.Thread(target = best_first, args=(table, PIECES))
 
 
         thread.daemon = True
@@ -591,17 +597,17 @@ def main():
 #     for i in range(0, 10000):
 #         reset_table(False)
 #         roll_dices()
-#         pieces = PIECES
-#         brute_force_solve(table, pieces)
+#         # pieces = PIECES
+#         # brute_force_solve(table, pieces)
 
         
-#         reset_table(True)
+#         #reset_table(True)
 #         pieces = PIECES
 #         dfs_solve(table, pieces)
 
 #         reset_table(True)
 #         pieces = PIECES
-#         a_star(table, pieces)
+#         best_first(table, pieces)
  
 
 if __name__ == "__main__":

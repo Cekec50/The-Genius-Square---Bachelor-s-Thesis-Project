@@ -1,12 +1,16 @@
 from ConstValues import *
 from Classes import Node
-import time
-
+from itertools import permutations
 from heapq import heappop, heappush
 from collections import deque
-import heapq
+
+import copy
+import bisect
+import time
 
 number_of_moves = 0
+
+"""" Board funtions """
 
 def is_valid_position(board, piece, board_coord):
     for piece_rect_coord in piece:
@@ -49,6 +53,33 @@ def check_if_finished(board):
                 return False
     return True
 
+def board_change(board_old, board_new):
+    for i in range(len(board_new)):
+        for j in range(len(board_new[0])):
+            board_old[i][j] = board_new[i][j]  
+
+"""" Help funtions """
+
+def get_piece_index(piece):
+    if piece == PIECE_1: return 1
+    if piece == PIECE_2: return 2
+    if piece == PIECE_3: return 3
+    if piece == PIECE_4: return 4
+    if piece == PIECE_5: return 5
+    if piece == PIECE_6: return 6
+    if piece == PIECE_7: return 7
+    if piece == PIECE_8: return 8
+    if piece == PIECE_9: return 9
+    return 1
+
+
+def state_to_tuple(board):
+    return tuple(tuple(row) for row in board)
+
+
+""" Algorithms """
+
+
 def dfs_solve(board, pieces,  piece_index=8 ):
     global number_of_moves
     if piece_index < 0:
@@ -66,17 +97,16 @@ def dfs_solve(board, pieces,  piece_index=8 ):
                 if is_valid_position(board, orientation, (row, col)):
                     place_piece(board, orientation, (row, col), piece_index + 1)
                     number_of_moves = number_of_moves + 1
-                    #time.sleep(0.04)
+                    time.sleep(0.15)
                     # Try to put next piece, recursion
                     if dfs_solve(board, pieces, piece_index - 1):
                         return True
                     # Backtracking
                     remove_piece_solve(board, orientation, (row, col))
-                    #time.sleep(0.04)
+                    time.sleep(0.15)
 
     return False
 
-from itertools import permutations
 
 def brute_force_solve(board, pieces):
     number_of_moves = 0
@@ -101,7 +131,7 @@ def brute_force_solve(board, pieces):
                     for col in range(len(board[0])):
                         if is_valid_position(board, orientation, (row, col)):
                             place_piece(board, orientation, (row, col), piece_index + 1)
-                            #time.sleep(0.00003)
+                            time.sleep(0.00003)
                             number_of_moves = number_of_moves + 1
                             piece_placed = True
                             placed = True
@@ -124,20 +154,8 @@ def brute_force_solve(board, pieces):
     print("NOT SOLVED")
     return False
 
-import copy
 
-import bisect
-def get_piece_index(piece):
-    if piece == PIECE_1: return 1
-    if piece == PIECE_2: return 2
-    if piece == PIECE_3: return 3
-    if piece == PIECE_4: return 4
-    if piece == PIECE_5: return 5
-    if piece == PIECE_6: return 6
-    if piece == PIECE_7: return 7
-    if piece == PIECE_8: return 8
-    if piece == PIECE_9: return 9
-    return 1
+
 def get_next_states(board_node):
     next_states = []
     board = board_node.get_board_state()
@@ -183,14 +201,8 @@ def heuristic_bounding_box(board):
     return bounding_box_area - len(empty_cells)  # The larger the box, the higher the penalty
 
 
-def get_heuristics(board):
-    empty_slots = sum(row.count(0) for row in board)
-    return empty_slots
 
-def state_to_tuple(board):
-    return tuple(tuple(row) for row in board)
-
-def a_star(board, pieces):
+def best_first(board, pieces):
     number_of_moves = 0
     visited_states = set()
     queue = deque()
@@ -205,8 +217,9 @@ def a_star(board, pieces):
         number_of_moves = number_of_moves + 1
         if(check_if_finished(current_state_node.get_board_state())):
             with open("output.txt", "a") as file:
-                print("A*: " + str(number_of_moves), file = file)
+                print("Best-First: " + str(number_of_moves), file = file)
             return True
+        time.sleep(0.2)
         possible_next_state_nodes = get_next_states(current_state_node)
 
         current_state = current_state_node.get_board_state()
@@ -217,19 +230,15 @@ def a_star(board, pieces):
                 heuristics = heuristic_bounding_box(new_state_node.get_board_state())
                 total_cost = 0
                 evaluation = total_cost + heuristics
-                new_state_node.set_evaluation(evaluation)
-                new_state_node.set_total_cost(total_cost)
+                #new_state_node.set_evaluation(evaluation)
+                #new_state_node.set_total_cost(total_cost)
                 new_state_node.set_heuristics(heuristics)
                 # queue.append(new_state_node)
-                bisect.insort(queue, new_state_node, key=lambda x: (x.get_evaluation()))
+                bisect.insort(queue, new_state_node, key=lambda x: (x.get_heuristics()))
 
 
 
-
-def board_change(board_old, board_new):
-    for i in range(len(board_new)):
-        for j in range(len(board_new[0])):
-            board_old[i][j] = board_new[i][j]    
+  
 
 
 
