@@ -84,7 +84,6 @@ def dfs_solve(board, pieces,  piece_index=8 ):
     global number_of_moves
     if piece_index < 0:
         # All pieces placed
-        print("Solved!")
         with open("output.txt", "a") as file:
             print("DFS: " + str(number_of_moves), file = file)
         number_of_moves = 0
@@ -97,13 +96,13 @@ def dfs_solve(board, pieces,  piece_index=8 ):
                 if is_valid_position(board, orientation, (row, col)):
                     place_piece(board, orientation, (row, col), piece_index + 1)
                     number_of_moves = number_of_moves + 1
-                    time.sleep(0.15)
+                    time.sleep(0.2)
                     # Try to put next piece, recursion
                     if dfs_solve(board, pieces, piece_index - 1):
                         return True
                     # Backtracking
                     remove_piece_solve(board, orientation, (row, col))
-                    time.sleep(0.15)
+                    time.sleep(0.2)
 
     return False
 
@@ -131,7 +130,7 @@ def brute_force_solve(board, pieces):
                     for col in range(len(board[0])):
                         if is_valid_position(board, orientation, (row, col)):
                             place_piece(board, orientation, (row, col), piece_index + 1)
-                            time.sleep(0.00003)
+                            time.sleep(0.0003)
                             number_of_moves = number_of_moves + 1
                             piece_placed = True
                             placed = True
@@ -185,21 +184,56 @@ def get_next_states(board_node):
                         next_states.append(Node(new_board, new_pieces_left))
     
     return next_states
-
+def heuristic(board):
+    empty_slots = sum(row.count(0) for row in board)
+    return empty_slots
 
 def heuristic_bounding_box(board):
-    empty_cells = [(r, c) for r in range(len(board)) for c in range(len(board[0])) if board[r][c] == 0]
-    if not empty_cells:
-        return 0  # No penalty if no empty cells
+    empty_cells = []
     
-    min_row = min(cell[0] for cell in empty_cells)
-    max_row = max(cell[0] for cell in empty_cells)
-    min_col = min(cell[1] for cell in empty_cells)
-    max_col = max(cell[1] for cell in empty_cells)
-
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == 0:  
+                empty_cells.append((i, j))  
+    
+    # Solved if no empty cells
+    if not empty_cells:
+        return 0  
+    
+    min_row = max_row = empty_cells[0][0]
+    min_col = max_col = empty_cells[0][1]
+    
+    # Determine the bounding box
+    for (x, y) in empty_cells:
+        if x < min_row: min_row = x
+        if x > max_row: max_row = x
+        if y < min_col: min_col = y
+        if y > max_col: max_col = y
+    
+    # Calculate the area of the bounding box
     bounding_box_area = (max_row - min_row + 1) * (max_col - min_col + 1)
-    return bounding_box_area - len(empty_cells)  # The larger the box, the higher the penalty
+    
+    # Return the penalty based on the bounding box area and number of empty cells
+    return bounding_box_area - len(empty_cells)
 
+
+def heuristic_2(board, pieces):
+    fitability_penalty = 0
+    for piece in pieces:
+        can_fit = False
+        for orientation in piece:
+            for row in range(len(board)):
+                for col in range(len(board[0])):
+                    if is_valid_position(board, orientation, (row, col)):
+                        can_fit = True
+                        break
+                if can_fit:
+                    break
+            if can_fit:
+                break
+        if not can_fit:
+            fitability_penalty += 1  # Penalize if a piece cannot fit
+    return fitability_penalty
 
 
 def best_first(board, pieces):
@@ -228,8 +262,8 @@ def best_first(board, pieces):
         for new_state_node in possible_next_state_nodes:
             if(state_to_tuple(new_state_node.get_board_state()) not in visited_states):
                 heuristics = heuristic_bounding_box(new_state_node.get_board_state())
-                total_cost = 0
-                evaluation = total_cost + heuristics
+                #total_cost = 0
+                #evaluation = total_cost + heuristics
                 #new_state_node.set_evaluation(evaluation)
                 #new_state_node.set_total_cost(total_cost)
                 new_state_node.set_heuristics(heuristics)

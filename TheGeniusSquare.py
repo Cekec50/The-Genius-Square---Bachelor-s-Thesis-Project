@@ -477,11 +477,11 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
-                pygame.quit()
-                return None
-                #pygame.display.update()
-                #player_1_time = 10
-                #break
+                #pygame.quit()
+                #return None
+                pygame.display.update()
+                player_1_time = 10
+                break
                      
 
             pygame.display.update()
@@ -597,17 +597,17 @@ def main():
 #     for i in range(0, 10000):
 #         reset_table(False)
 #         roll_dices()
-#         # pieces = PIECES
-#         # brute_force_solve(table, pieces)
+#         pieces = PIECES
+#         brute_force_solve(table, pieces)
 
         
 #         #reset_table(True)
-#         pieces = PIECES
-#         dfs_solve(table, pieces)
+#         # pieces = PIECES
+#         # dfs_solve(table, pieces)
 
-#         reset_table(True)
-#         pieces = PIECES
-#         best_first(table, pieces)
+#         #reset_table(True)
+#         # pieces = PIECES
+#         # best_first(table, pieces)
  
 
 if __name__ == "__main__":
