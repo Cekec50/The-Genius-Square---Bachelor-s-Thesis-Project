@@ -291,6 +291,7 @@ def mouse_function():
             if(field_coordinate != None):
                 type = table[field_coordinate[0]][field_coordinate[1]]
                 remove_piece(type)
+                print(heuristic_bounding_box(table))
         
             for piece in pieces: 
                 if piece.hovered_over(ev.pos):
@@ -318,6 +319,7 @@ def mouse_function():
                if(field_coordinate != None):
                    if(piece_fits(field_coordinate, dragged_piece)):
                         put_piece(field_coordinate, dragged_piece)
+                        print(heuristic_bounding_box(table))
                         table[field_coordinate[0]][field_coordinate[1]] = dragged_piece.get_type()
                 
             dragging = False
@@ -477,10 +479,11 @@ def game_start(game_type):
                 start_ticks = pygame.time.get_ticks()
             
             if (button_pressed == 0):
-                #pygame.quit()
-                #return None
+                pygame.quit()
+                return None
+                pieces.clear()
                 pygame.display.update()
-                player_1_time = 10
+                player_1_time = 35
                 break
                      
 
